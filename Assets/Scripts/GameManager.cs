@@ -9,12 +9,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject safeZone;
     [SerializeField] private Sprite treeSprite;
     [SerializeField] private GameObject treePrefab;
-    private int treeCount;
+    [SerializeField] private int treeCount;
+    [SerializeField] private float treeSpawnThreshold;
     private int safeCount;
     static object lockObject;
 
     private float breadcrumbOffsetY;
     private List<GameObject> breadcrumbs = new List<GameObject>();
+    private List<GameObject> trees = new List<GameObject>();
 
     private System.Diagnostics.Stopwatch stopwatch;
 
@@ -47,7 +49,6 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        treeCount = 500;
         generateSafeZones();
         generateTrees();
         lockObject = new object();
@@ -92,35 +93,71 @@ public class GameManager : MonoBehaviour
 
     private void generateTrees()
     {
-        float mapWidth = groundSprite.bounds.size.x / 2;
-        float mapHeight = groundSprite.bounds.size.y / 2;
         for (int i = 0; i < treeCount; i++)
         {
-            var tree = Instantiate(treePrefab);
-            var quadrant = i % 4;
-            Debug.Log(quadrant);
-            float randomOffsetX = 0.0f, randomOffsetY = 0.0f;
-            switch (quadrant) {
-                case 0:
-                    randomOffsetX = Random.Range(0, mapWidth);
-                    randomOffsetY = Random.Range(0, mapHeight);
-                    break;
-                case 1:
-                    randomOffsetX = Random.Range(-mapWidth, 0);
-                    randomOffsetY = Random.Range(0, mapHeight);
-                    break;
-                case 2:
-                    randomOffsetX = Random.Range(-mapWidth, 0);
-                    randomOffsetY = Random.Range(-mapHeight, 0);
-                    break;
-                case 3:
-                    randomOffsetX = Random.Range(0, mapWidth);
-                    randomOffsetY = Random.Range(-mapHeight, 0);
-                    break; 
+            GameObject tree = Instantiate(treePrefab);
+            float[] randomOffset = generateRandomPosition(i);
+            bool chooseAnotherOffset = true;
+            while (true)
+            {
+                if (trees.Count != 0)
+                {
+                    foreach (var instantiatedTree in trees)
+                    {
+                        float x1 = instantiatedTree.transform.position.x;
+                        float y1 = instantiatedTree.transform.position.y;
+                        if (Mathf.Sqrt(Mathf.Pow(randomOffset[0] - x1, 2) + Mathf.Pow(randomOffset[1] - y1, 2)) >= treeSpawnThreshold)
+                        {
+                            chooseAnotherOffset = false;
+                            break;
+                        }
+                    }
+                    if (!chooseAnotherOffset)
+                    {
+                        randomOffset = generateRandomPosition(i);
+                        chooseAnotherOffset = true;
+                    }
+                }
+                else break;
+                if (!chooseAnotherOffset) break;
             }
+            
+
             tree.transform.SetPositionAndRotation(
-                new Vector3(randomOffsetX, randomOffsetY),
-                Quaternion.identity);
+                new Vector3(randomOffset[0], randomOffset[1]),
+                Quaternion.identity
+            );
         }
+    }
+
+    private float[] generateRandomPosition(
+        int index
+    )
+    {
+        float mapWidth = groundSprite.bounds.size.x / 2;
+        float mapHeight = groundSprite.bounds.size.y / 2;
+        int quadrant = index % 4;
+        Debug.Log(quadrant);
+        float randomOffsetX = 0.0f, randomOffsetY = 0.0f;
+        switch (quadrant)
+        {
+            case 0:
+                randomOffsetX = Random.Range(0, mapWidth);
+                randomOffsetY = Random.Range(0, mapHeight);
+                break;
+            case 1:
+                randomOffsetX = Random.Range(-mapWidth, 0);
+                randomOffsetY = Random.Range(0, mapHeight);
+                break;
+            case 2:
+                randomOffsetX = Random.Range(-mapWidth, 0);
+                randomOffsetY = Random.Range(-mapHeight, 0);
+                break;
+            case 3:
+                randomOffsetX = Random.Range(0, mapWidth);
+                randomOffsetY = Random.Range(-mapHeight, 0);
+                break;
+        }
+        return new float[] { randomOffsetX, randomOffsetY };
     }
 }

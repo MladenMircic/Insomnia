@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class TreeController : MonoBehaviour
 {
-    [SerializeField]
     private GameManager gameManager;
     private SpriteRenderer spriteRenderer;
 
     // Start is called before the first frame update
     void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
