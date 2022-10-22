@@ -12,7 +12,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int treeCount;
     [SerializeField] private float treeSpawnThreshold;
     private int safeCount;
-    static object lockObject;
 
     private float breadcrumbOffsetY;
     private List<GameObject> breadcrumbs = new List<GameObject>();
@@ -38,7 +37,6 @@ public class GameManager : MonoBehaviour
             if (safeCount == 0)
             {
                 stopwatch.Stop();
-                Debug.Log(stopwatch.ElapsedMilliseconds / 1000);
             }
         }
     }
@@ -51,7 +49,6 @@ public class GameManager : MonoBehaviour
     {
         generateSafeZones();
         generateTrees();
-        lockObject = new object();
         stopwatch = new System.Diagnostics.Stopwatch();
     }
 
@@ -137,7 +134,6 @@ public class GameManager : MonoBehaviour
         float mapWidth = groundSprite.bounds.size.x / 2;
         float mapHeight = groundSprite.bounds.size.y / 2;
         int quadrant = index % 4;
-        Debug.Log(quadrant);
         float randomOffsetX = 0.0f, randomOffsetY = 0.0f;
         switch (quadrant)
         {

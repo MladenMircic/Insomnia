@@ -6,14 +6,14 @@ public class PlayerController : MonoBehaviour
 {
 
     private Rigidbody2D rb2d;
-    private float speed = 5f;
+    [SerializeField]
+    private float speed;
     [SerializeField]
     private GameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        //gameManager.Field = 3;
         rb2d = GetComponent<Rigidbody2D>();
     }
 
