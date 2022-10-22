@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject treePrefab;
     [SerializeField] private int treeCount;
     [SerializeField] private float treeSpawnThreshold;
+    [SerializeField] private int matrixSize;
     private int safeCount;
 
     private float breadcrumbOffsetY;
@@ -90,40 +91,50 @@ public class GameManager : MonoBehaviour
 
     private void generateTrees()
     {
-        for (int i = 0; i < treeCount; i++)
+        var matrix = Matrix(matrixSize);
+
+        var quadrants = new int[] { 1, 2, 3, 4 };
+
+        foreach (int quadrant in quadrants)
         {
-            GameObject tree = Instantiate(treePrefab);
-            float[] randomOffset = generateRandomPosition(i);
-            bool chooseAnotherOffset = true;
-            while (true)
+            for (int i = 0; i < matrixSize; i++) 
             {
-                if (trees.Count != 0)
+                var module = Random.Range(2, 5);
+                for (int j = 0; j < matrixSize; j++) 
                 {
-                    foreach (var instantiatedTree in trees)
+                    GameObject tree = Instantiate(treePrefab);
+                    var treeW = tree.GetComponent<SpriteRenderer>().bounds.size.x;
+                    var treeY = tree.GetComponent<SpriteRenderer>().bounds.size.y;
+                    float posX = 0.0f;
+                    float posY = 0.0f;
+                    if ((j+1+ i) % module == 0) 
                     {
-                        float x1 = instantiatedTree.transform.position.x;
-                        float y1 = instantiatedTree.transform.position.y;
-                        if (Mathf.Sqrt(Mathf.Pow(randomOffset[0] - x1, 2) + Mathf.Pow(randomOffset[1] - y1, 2)) >= treeSpawnThreshold)
+                        switch (quadrant) 
                         {
-                            chooseAnotherOffset = false;
-                            break;
+                            case 1:
+                                posX = (j * treeW * 1.1f);
+                                posY = (i * treeY);
+                                break;
+                            case 2:
+                                posX = -(j * treeW * 1.1f);
+                                posY = (i * treeY);
+                                break;
+                            case 3:
+                                posX = -(j * treeW * 1.1f);
+                                posY = -(i * treeY * 1.15f);
+                                break;
+                            case 4:
+                                posX = (j * treeW * 1.1f);
+                                posY = -(i * treeY * 1.15f);
+                                break;
                         }
-                    }
-                    if (!chooseAnotherOffset)
-                    {
-                        randomOffset = generateRandomPosition(i);
-                        chooseAnotherOffset = true;
+                        
+                        tree.transform.SetPositionAndRotation(
+                            new Vector3(posX, posY),
+                            Quaternion.identity);
                     }
                 }
-                else break;
-                if (!chooseAnotherOffset) break;
             }
-            
-
-            tree.transform.SetPositionAndRotation(
-                new Vector3(randomOffset[0], randomOffset[1]),
-                Quaternion.identity
-            );
         }
     }
 
@@ -135,6 +146,7 @@ public class GameManager : MonoBehaviour
         float mapHeight = groundSprite.bounds.size.y / 2;
         int quadrant = index % 4;
         float randomOffsetX = 0.0f, randomOffsetY = 0.0f;
+
         switch (quadrant)
         {
             case 0:
@@ -155,5 +167,35 @@ public class GameManager : MonoBehaviour
                 break;
         }
         return new float[] { randomOffsetX, randomOffsetY };
+    }
+
+        int[,] Matrix(int n)
+    {
+        var result = new int[n, n];                    
+
+        int level = 0,
+            counter = 1;
+        while (level < (int)Mathf.Ceil(n / 2f))
+        {
+            // Start at top left of this level.
+            int x = level, 
+                y = level;
+            // Move from left to right.
+            for (; x < n - level; x++)           
+                result[y, x] = counter++;            
+            // Move from top to bottom.
+            for (y++, x--; y < n - level; y++)            
+                result[y, x] = counter++;            
+            // Move from right to left.
+            for (x--, y--; x >= level; x--)            
+                result[y, x] = counter++;            
+            // Move from bottom to top. Do not overwrite top left cell.
+            for (y--, x++; y >= level + 1; y--)            
+                result[y, x] = counter++;            
+            // Go to inner level.
+            level++;
+        }
+
+        return result;
     }
 }
