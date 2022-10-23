@@ -11,7 +11,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject safeZone;
     [SerializeField] private GameObject[] medicinePrefabs;
     [SerializeField] private Sprite treeSprite;
-    [SerializeField] private GameObject treePrefab;
+    /*[SerializeField] private GameObject treePrefab;
+    [SerializeField] private GameObject bushPrefab;
+    [SerializeField] private GameObject spindlyTreePrefab;*/
+    [SerializeField] private GameObject[] prefabs;
+    [SerializeField] private GameObject medicinePrefab;
     [SerializeField] private int treeCount;
     [SerializeField] private float treeSpawnThreshold;
     [SerializeField] private int matrixSize;
@@ -125,12 +129,12 @@ public class GameManager : MonoBehaviour
                 var module = Random.Range(2, 5);
                 for (int j = 0; j < matrixSize; j++) 
                 {
-                    GameObject tree = Instantiate(treePrefab);
+                    GameObject tree = Instantiate(prefabs[Random.Range(0,3)]);
                     var treeW = tree.GetComponent<SpriteRenderer>().bounds.size.x;
                     var treeY = tree.GetComponent<SpriteRenderer>().bounds.size.y;
                     float posX = 0.0f;
                     float posY = 0.0f;
-                    if ((j+1+ i) % module == 0) 
+                    if ((j+1+i) % module == 0) 
                     {
                         switch (quadrant) 
                         {
