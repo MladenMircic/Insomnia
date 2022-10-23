@@ -13,7 +13,7 @@ public class SafeZoneLogic : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == 6)
+        if (gameManager != null && collision.gameObject.layer == 6)
         {
             gameManager.SafeCount++;
         }
@@ -21,7 +21,7 @@ public class SafeZoneLogic : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == 6)
+        if (gameManager != null && collision.gameObject.layer == 6)
         {
             gameManager.SafeCount--;
         }

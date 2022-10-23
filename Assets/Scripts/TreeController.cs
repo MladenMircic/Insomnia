@@ -13,43 +13,21 @@ public class TreeController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator animator;
 
+    private bool lastIterOpenEyes = false;
+
     // Start is called before the first frame update
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         sceneManager = GameObject.Find("SceneManager").GetComponent<SceneManager>();
-        Debug.Log(sceneManager);
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        Collider2D playerColliderInZone = Physics2D.OverlapCircle(
-            transform.position,
-            playerOverlapRadius,
-            playerMask
-        );
-        Collider2D playerColliderOutZone = Physics2D.OverlapCircle(
-            transform.position,
-            playerOverlapRadius * 2,
-            playerMask
-        );
-        if (gameManager.SafeCount >= 1 && playerColliderInZone != null)
-        {
-            animator.SetBool("PlayerInZone", true);
-            sceneManager.NumOfEyesOpen++;
-        }
-        else
-        {
-            animator.SetBool("PlayerInZone", false);
-        }
+        StartCoroutine("CheckPlayerCollision");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == 6)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             ChangeOpacity(0.5f);
         }
@@ -57,7 +35,7 @@ public class TreeController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == 6)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             ChangeOpacity(1f);
         }
@@ -70,6 +48,37 @@ public class TreeController : MonoBehaviour
             spriteRenderer.color.g,
             spriteRenderer.color.b,
             opacity);
+    }
+
+    private IEnumerator CheckPlayerCollision()
+    {
+        while (true)
+        {
+            Collider2D collider = Physics2D.OverlapCircle(
+                transform.position,
+                playerOverlapRadius,
+                playerMask
+            );
+            if (gameManager.SafeCount > 0 &&  collider != null)
+            {
+                animator.SetBool("PlayerEnteredZone", true);
+                if (!lastIterOpenEyes)
+                {
+                    sceneManager.NumOfEyesOpen++;
+                }
+                lastIterOpenEyes = true;
+            }
+            else
+            {
+                animator.SetBool("PlayerEnteredZone", false);
+                if (lastIterOpenEyes)
+                {
+                    lastIterOpenEyes = false;
+                    sceneManager.NumOfEyesOpen--;
+                }
+            }
+            yield return new WaitForSeconds(.5f);
+        }
     }
 
 }

@@ -11,17 +11,27 @@ public class SceneManager : MonoBehaviour
 
     private int numOfEyesOpen = 0;
 
-    public int NumOfEyesOpen {
-        get { return numOfEyesOpen; }
-        set {
+    public int NumOfEyesOpen { 
+        get { return numOfEyesOpen; } 
+        set
+        {
             numOfEyesOpen = value;
-            Debug.Log(numOfEyesOpen);
             if (numOfEyesOpen > 0)
             {
-                Debug.Log(numOfEyesOpen);
-                navigatorEyeAnimator.SetTrigger("OpenEye");
+                navigatorEyeAnimator.SetBool("OpenEye", true);
             }
-        } 
+            else
+            {
+                StartCoroutine("CloseEyeDelay");
+            }
+        }
+    }
+
+    private IEnumerator CloseEyeDelay()
+    {
+        yield return new WaitForSeconds(1f);
+        if (numOfEyesOpen == 0)
+            navigatorEyeAnimator.SetBool("OpenEye", false);
     }
 
     // Start is called before the first frame update
@@ -30,9 +40,8 @@ public class SceneManager : MonoBehaviour
         navigatorEyeAnimator = navigatorEye.GetComponent<Animator>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void TriggerNavigatorEye(string trigger)
     {
-        
+        navigatorEyeAnimator.SetTrigger(trigger);
     }
 }

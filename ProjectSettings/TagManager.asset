@@ -13,7 +13,7 @@ TagManager:
   - UI
   - Player
   - Tree
-  - 
+  - Item
   - 
   - 
   - 
@@ -43,6 +43,9 @@ TagManager:
     locked: 0
   - name: Ground
     uniqueID: 3148534237
+    locked: 0
+  - name: Item
+    uniqueID: 3023547017
     locked: 0
   - name: Player
     uniqueID: 3426890041
