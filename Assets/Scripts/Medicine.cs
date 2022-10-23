@@ -23,6 +23,7 @@ public class Medicine : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             gameManager.MedicineCollected++;
+            Destroy(gameObject);
         }
     }
 }

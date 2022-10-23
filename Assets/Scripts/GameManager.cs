@@ -76,6 +76,7 @@ public class GameManager : MonoBehaviour
 
     private void generateSafeZones()
     {
+        GameObject safeZones = GameObject.Find("SafeZones");
         breadcrumbOffsetY = groundTransform.position.x -
             groundTransform.rect.height / 4;
         float offset = groundTransform.rect.height / breadcrumbCount;
@@ -83,6 +84,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < breadcrumbCount; i++)
         {
             GameObject breadcrumb = Instantiate(safeZone);
+            breadcrumb.transform.parent = safeZones.transform;
             breadcrumbs.Add(breadcrumb);
             float randomOffsetX = Random.Range(-groundHalfWidth, groundHalfWidth);
             breadcrumb.transform.SetPositionAndRotation(
@@ -94,6 +96,7 @@ public class GameManager : MonoBehaviour
 
     private void generateTrees()
     {
+        GameObject trees = GameObject.Find("Trees");
         var matrix = Matrix(matrixSize);
 
         var quadrants = new int[] { 1, 2, 3, 4 };
@@ -140,6 +143,7 @@ public class GameManager : MonoBehaviour
                         {
                             Destroy(tree);
                         }
+                        tree.transform.parent = trees.transform;
                     }
                 }
             }
