@@ -1,19 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private SceneLoader sceneLoader;
     [SerializeField] private RectTransform groundTransform;
     [SerializeField] private int breadcrumbCount = 10;
     [SerializeField] private GameObject safeZone;
+    [SerializeField] private GameObject[] medicinePrefabs;
     [SerializeField] private Sprite treeSprite;
     [SerializeField] private GameObject treePrefab;
-    [SerializeField] private GameObject medicinePrefab;
     [SerializeField] private int treeCount;
     [SerializeField] private float treeSpawnThreshold;
     [SerializeField] private int matrixSize;
     private int safeCount;
+
+    private int playerHealth = 100;
 
     private float groundHalfWidth;
     private float groundHalfHeight;
@@ -61,6 +65,19 @@ public class GameManager : MonoBehaviour
                 unlockEnd = true;
             }
         } 
+    }
+
+    public int PlayerHealth { 
+        get { return playerHealth; } 
+        set
+        {
+            playerHealth = value;
+            Debug.Log(playerHealth);
+            if (playerHealth <= 0)
+            {
+                PlayerDie();
+            }
+        }
     }
 
     // Start is called before the first frame update
@@ -157,8 +174,8 @@ public class GameManager : MonoBehaviour
         {
             float x = Random.Range(-groundHalfWidth, groundHalfWidth);
             float y = Random.Range(-groundHalfHeight, groundHalfHeight);
-
-            GameObject medicine = Instantiate(medicinePrefab);
+            int prefabIndex = Random.Range(0, 3);
+            GameObject medicine = Instantiate(medicinePrefabs[prefabIndex]);
             medicine.transform.SetLocalPositionAndRotation(
                 new Vector3(x, y),
                 Quaternion.identity
@@ -195,5 +212,10 @@ public class GameManager : MonoBehaviour
         }
 
         return result;
+    }
+
+    private void PlayerDie()
+    {
+        sceneLoader.LoadNextScene();
     }
 }

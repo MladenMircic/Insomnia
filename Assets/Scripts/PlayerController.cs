@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
         rb2d = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        StartCoroutine("PeriodicalDamageOutZone");
     }
 
     // Update is called once per frame
@@ -46,6 +47,18 @@ public class PlayerController : MonoBehaviour
 
 
         animator.SetFloat("Speed", rb2d.velocity.magnitude);
+    }
+
+    private IEnumerator PeriodicalDamageOutZone()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(3f);
+            if (gameManager.SafeCount == 0)
+            {
+                gameManager.PlayerHealth -= 10;
+            }
+        }
     }
 }
  
