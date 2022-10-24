@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private SpriteRenderer spriteRenderer;
 
+    private bool isDead = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -33,32 +35,46 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float xAxis = Input.GetAxisRaw("Horizontal");
-        float yAxis = Input.GetAxisRaw("Vertical");
-
-        // Movement
-        rb2d.velocity = new Vector2(xAxis, yAxis) * speed;
-
-        // Change direction
-        if (rb2d.velocity.magnitude > 0.01f)
+        if (!isDead)
         {
-            spriteRenderer.flipX = rb2d.velocity.x < 0;
+            float xAxis = Input.GetAxisRaw("Horizontal");
+            float yAxis = Input.GetAxisRaw("Vertical");
+
+            // Movement
+            rb2d.velocity = new Vector2(xAxis, yAxis) * speed;
+
+            // Change direction
+            if (rb2d.velocity.magnitude > 0.01f)
+            {
+                spriteRenderer.flipX = rb2d.velocity.x < 0;
+            }
+
+
+            animator.SetFloat("Speed", rb2d.velocity.magnitude);
         }
-
-
-        animator.SetFloat("Speed", rb2d.velocity.magnitude);
+        else
+        {
+            rb2d.velocity = Vector2.zero;
+        }
     }
 
     private IEnumerator PeriodicalDamageOutZone()
     {
         while (true)
         {
+            Debug.Log("RADI");
             yield return new WaitForSeconds(3f);
             if (gameManager.SafeCount == 0)
             {
                 gameManager.PlayerHealth -= 10;
             }
         }
+    }
+
+    public void Die()
+    {
+        isDead = true;
+        animator.SetTrigger("Die");
     }
 }
  

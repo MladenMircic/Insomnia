@@ -7,6 +7,8 @@ public class SceneManager : MonoBehaviour
 {
     [SerializeField]
     private Image navigatorEye;
+    [SerializeField]
+    private Slider healthBar;
     private Animator navigatorEyeAnimator;
 
     private int numOfEyesOpen = 0;
@@ -25,6 +27,11 @@ public class SceneManager : MonoBehaviour
                 StartCoroutine("CloseEyeDelay");
             }
         }
+    }
+
+    public void DecreaseHealth(float healthLoss)
+    {
+        healthBar.value = healthLoss;
     }
 
     private IEnumerator CloseEyeDelay()

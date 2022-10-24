@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private SceneManager sceneManager;
     [SerializeField] private SceneLoader sceneLoader;
     [SerializeField] private RectTransform groundTransform;
     [SerializeField] private int breadcrumbCount = 10;
@@ -14,11 +15,13 @@ public class GameManager : MonoBehaviour
     /*[SerializeField] private GameObject treePrefab;
     [SerializeField] private GameObject bushPrefab;
     [SerializeField] private GameObject spindlyTreePrefab;*/
-    [SerializeField] private GameObject[] prefabs;
+    [SerializeField] private GameObject[] treePrefabs;
     [SerializeField] private GameObject medicinePrefab;
     [SerializeField] private int treeCount;
     [SerializeField] private float treeSpawnThreshold;
     [SerializeField] private int matrixSize;
+    [SerializeField]
+    private GameObject gate;
     private int safeCount;
 
     private int playerHealth = 100;
@@ -63,7 +66,7 @@ public class GameManager : MonoBehaviour
         get { return medicineCollected; } 
         set 
         {
-            medicineCount = value;
+            medicineCollected = value;
             if (medicineCollected == medicineCount)
             {
                 unlockEnd = true;
@@ -75,8 +78,8 @@ public class GameManager : MonoBehaviour
         get { return playerHealth; } 
         set
         {
+            sceneManager.DecreaseHealth(value / 100f);
             playerHealth = value;
-            Debug.Log(playerHealth);
             if (playerHealth <= 0)
             {
                 PlayerDie();
@@ -93,6 +96,13 @@ public class GameManager : MonoBehaviour
         generateTrees();
         generateMedicine();
         stopwatch = new System.Diagnostics.Stopwatch();
+        GameObject gateInst = Instantiate(gate);
+        float randomXPos = Random.Range(-groundHalfWidth, groundHalfWidth);
+        gateInst.transform.SetLocalPositionAndRotation(
+            new Vector3(randomXPos, groundHalfHeight * .9f),
+            Quaternion.identity
+        );
+        gateInst.GetComponent<GateController>().setGameManager(this);
     }
 
     private void generateSafeZones()
@@ -129,7 +139,8 @@ public class GameManager : MonoBehaviour
                 var module = Random.Range(2, 5);
                 for (int j = 0; j < matrixSize; j++) 
                 {
-                    GameObject tree = Instantiate(prefabs[Random.Range(0,3)]);
+                    int prefabIndex = Random.Range(0, 3);
+                    GameObject tree = Instantiate(treePrefabs[prefabIndex]);
                     var treeW = tree.GetComponent<SpriteRenderer>().bounds.size.x;
                     var treeY = tree.GetComponent<SpriteRenderer>().bounds.size.y;
                     float posX = 0.0f;
@@ -159,11 +170,6 @@ public class GameManager : MonoBehaviour
                         tree.transform.SetPositionAndRotation(
                             new Vector3(posX, posY),
                             Quaternion.identity);
-                        if (Mathf.Abs(tree.transform.position.x) > groundTransform.rect.width / 2 ||
-                            Mathf.Abs(tree.transform.position.y) > groundTransform.rect.height)
-                        {
-                            Destroy(tree);
-                        }
                         tree.transform.parent = trees.transform;
                     }
                 }
@@ -173,7 +179,7 @@ public class GameManager : MonoBehaviour
 
     private void generateMedicine()
     {
-        medicineCount = Random.Range(3, 8);
+        medicineCount = 3;
         for (int i = 0; i < medicineCount; i++)
         {
             float x = Random.Range(-groundHalfWidth, groundHalfWidth);
@@ -218,8 +224,19 @@ public class GameManager : MonoBehaviour
         return result;
     }
 
+    public bool isUnlockedEnd()
+    {
+        return unlockEnd;
+    }
     private void PlayerDie()
     {
+        GameObject.Find("Player").GetComponent<PlayerController>().Die();
+        StartCoroutine("EndSceneDelay");
+    }
+
+    private IEnumerator EndSceneDelay()
+    {
+        yield return new WaitForSeconds(3f);
         sceneLoader.LoadNextScene();
     }
 }
